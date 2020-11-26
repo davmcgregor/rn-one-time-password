@@ -3,17 +3,20 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Input, Button } from 'react-native-elements';
 import axios from 'axios';
+import firebase from 'firebase';
 
-const SignUpForm = () => {
+const SignInForm = () => {
   const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`${ROOT_URL}/createUser`, { phone });
-
-      await axios.post(`${ROOT_URL}/requestOneTimePassword`, {
+      let { data } = await axios.post(`${ROOT_URL}/verifyOneTimePassword`, {
         phone,
+        code,
       });
+
+      firebase.auth().signInWithCustomToken(data.token);
     } catch (err) {
       console.log(err);
     }
@@ -28,9 +31,16 @@ const SignUpForm = () => {
           onChangeText={(text) => setPhone(text)}
         />
       </View>
+      <View>
+        <Input
+          label='Enter code'
+          value={code}
+          onChangeText={(text) => setCode(text)}
+        />
+      </View>
       <Button title='Submit' onPress={handleSubmit} />
     </View>
   );
 };
 
-export default SignUpForm;
+export default SignInForm;
